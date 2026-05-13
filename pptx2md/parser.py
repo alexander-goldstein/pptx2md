@@ -152,7 +152,14 @@ def process_picture(config: ConversionConfig, shape, slide_idx) -> Union[ImageEl
 
     file_prefix = ''.join(os.path.basename(config.pptx_path).split('.')[:-1])
     pic_name = file_prefix + f'_{picture_count}'
-    pic_ext = shape.image.ext
+    
+    # Handle shapes without embedded images
+    try:
+        pic_ext = shape.image.ext
+    except ValueError as e:
+        logger.warning(f"Cannot extract image in slide {slide_idx}: {e}, skipped.")
+        return None
+    
     if not os.path.exists(config.image_dir):
         os.makedirs(config.image_dir)
 
@@ -171,16 +178,18 @@ def process_picture(config: ConversionConfig, shape, slide_idx) -> Union[ImageEl
     try:
         try:
             Image.open(output_path).save(os.path.splitext(output_path)[0] + '.png')
+            logger.info(f'Image {output_path} in slide {slide_idx} converted to png using PIL.')
             return ImageElement(path=os.path.splitext(img_outputter_path)[0] + '.png', width=config.image_width)
-        except Exception:  # Image failed, try another
-            from wand.image import Image
-            with Image(filename=output_path) as img:
+        except Exception as e:  # PIL failed, try wand
+            logger.debug(f'PIL conversion failed for {output_path}: {e}, trying wand...')
+            from wand.image import Image as WandImage
+            with WandImage(filename=output_path) as img:
                 img.format = 'png'
                 img.save(filename=os.path.splitext(output_path)[0] + '.png')
-            logger.info(f'Image {output_path} in slide {slide_idx} converted to png.')
+            logger.info(f'Image {output_path} in slide {slide_idx} converted to png using Wand.')
             return ImageElement(path=os.path.splitext(img_outputter_path)[0] + '.png', width=config.image_width)
-    except Exception:
-        logger.warning(f'Cannot convert wmf image {output_path} in slide {slide_idx} to png, skipped.')
+    except Exception as e:
+        logger.warning(f'Cannot convert wmf image {output_path} in slide {slide_idx} to png: {e}, skipped.')
         return None
 
 

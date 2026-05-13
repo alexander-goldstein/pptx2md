@@ -169,8 +169,11 @@ class MarkdownFormatter(Formatter):
         self.ofile.write(text + '\n\n')
 
     def put_image(self, path, max_width=None):
+        # Convert Windows backslashes to forward slashes, then URL encode (keeping / and , safe)
+        path = path.replace('\\', '/')
+        path = urllib.parse.quote(path, safe='/,')
         if max_width is None:
-            self.ofile.write(f'![]({urllib.parse.quote(path)})\n\n')
+            self.ofile.write(f'![]({path})\n\n')
         else:
             self.ofile.write(f'<img src="{path}" style="max-width:{max_width}px;" />\n\n')
 
@@ -391,8 +394,11 @@ format:
         self.ofile.write(text + '\n\n')
 
     def put_image(self, path, max_width=None):
+        # Convert Windows backslashes to forward slashes, then URL encode (keeping / and , safe)
+        path = path.replace('\\', '/')
+        path = urllib.parse.quote(path, safe='/,')
         if max_width is None:
-            self.ofile.write(f'![]({urllib.parse.quote(path)})\n\n')
+            self.ofile.write(f'![]({path})\n\n')
         else:
             self.ofile.write(f'<img src="{path}" style="max-width:{max_width}px;" />\n\n')
 
