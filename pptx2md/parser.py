@@ -179,6 +179,9 @@ def process_picture(config: ConversionConfig, shape, slide_idx) -> Union[ImageEl
         try:
             Image.open(output_path).save(os.path.splitext(output_path)[0] + '.png')
             logger.info(f'Image {output_path} in slide {slide_idx} converted to png using PIL.')
+            # Remove intermediate .wmf file after successful conversion
+            os.remove(output_path)
+            logger.debug(f'Removed intermediate wmf file: {output_path}')
             return ImageElement(path=os.path.splitext(img_outputter_path)[0] + '.png', width=config.image_width)
         except Exception as e:  # PIL failed, try wand
             logger.debug(f'PIL conversion failed for {output_path}: {e}, trying wand...')
@@ -187,6 +190,9 @@ def process_picture(config: ConversionConfig, shape, slide_idx) -> Union[ImageEl
                 img.format = 'png'
                 img.save(filename=os.path.splitext(output_path)[0] + '.png')
             logger.info(f'Image {output_path} in slide {slide_idx} converted to png using Wand.')
+            # Remove intermediate .wmf file after successful conversion
+            os.remove(output_path)
+            logger.debug(f'Removed intermediate wmf file: {output_path}')
             return ImageElement(path=os.path.splitext(img_outputter_path)[0] + '.png', width=config.image_width)
     except Exception as e:
         logger.warning(f'Cannot convert wmf image {output_path} in slide {slide_idx} to png: {e}, skipped.')

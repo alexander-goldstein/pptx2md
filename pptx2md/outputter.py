@@ -50,9 +50,8 @@ class Formatter:
                     case ElementType.Title:
                         element.content = element.content.strip()
                         if element.content:
-                            if last_title and last_title.level == element.level and fuzz.ratio(
-                                    last_title.content, element.content, score_cutoff=92):
-                                # skip if the title is the same as the last one
+                            if last_title and last_title.level == element.level and last_title.content == element.content:
+                                # skip if the title is exactly the same as the last one
                                 # Allow for repeated slide titles - One or more - Add (cont.) to the title
                                 if self.config.keep_similar_titles:
                                     self.put_title(f'{element.content} (cont.)', element.level)
@@ -317,9 +316,8 @@ class QuartoFormatter(Formatter):
                     case ElementType.Title:
                         element.content = element.content.strip()
                         if element.content:
-                            if last_title and last_title.level == element.level and fuzz.ratio(
-                                    last_title.content, element.content, score_cutoff=92):
-                                # skip if the title is the same as the last one
+                            if last_title and last_title.level == element.level and last_title.content == element.content:
+                                # skip if the title is exactly the same as the last one
                                 # Allow for repeated slide titles - One or more - Add (cont.) to the title
                                 if self.config.keep_similar_titles:
                                     self.put_title(f'{element.content} (cont.)', element.level)

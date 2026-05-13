@@ -60,7 +60,9 @@ def parse_args() -> ConversionConfig:
     # Determine output path if not specified
     if args.output is None:
         extension = '.tid' if args.wiki else '.qmd' if args.qmd else '.md'
-        args.output = Path(f'out{extension}')
+        # Use the input pptx filename (without extension) as the default output name
+        pptx_stem = args.pptx_path.stem
+        args.output = Path(f'{pptx_stem}{extension}')
 
     return ConversionConfig(
         pptx_path=args.pptx_path,
